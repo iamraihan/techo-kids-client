@@ -1,20 +1,17 @@
 import React from "react";
-import { FaFacebook, FaGoogle } from "react-icons/fa";
-// import { useSignInWithGoogle } from "react-firebase-hooks/auth";
-import registerImg from "../images/teacher-student.webp";
-import auth from "../firebase.init";
+import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
-import {
-  useCreateUserWithEmailAndPassword,
-  useUpdateProfile,
-} from "react-firebase-hooks/auth";
+import { FaFacebook, FaGoogle } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import auth from "../firebase.init";
+import registerImg from "../images/teacher-student.webp";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const Register = () => {
-  // const [signInWithGoogle, user, loading, error] = useSignInWithGoogle(auth);
-  const [createUserWithEmailAndPassword, user, loading, error] =
-    useCreateUserWithEmailAndPassword(auth);
-  const [updateProfile, updating] = useUpdateProfile(auth);
+const Login = () => {
+  let location = useLocation();
+  const navigate = useNavigate();
+  const [signInWithEmailAndPassword, user, loading, error] =
+    useSignInWithEmailAndPassword(auth);
   const {
     register,
     getValues,
@@ -30,42 +27,22 @@ const Register = () => {
       submitCount,
     },
   } = useForm();
-  const { name, email, category } = getValues();
 
+  const onSubmit = (data) => {
+    console.log(data);
+    signInWithEmailAndPassword(data.email, data.password);
+  };
+
+  let from = location.state?.from?.pathname || "/";
+  if (user) {
+    navigate(from, { replace: true });
+  }
   let signError;
   signError = (
     <p className="text-error">
       <small>{error?.message}</small>
     </p>
   );
-
-  const onSubmit = async (data) => {
-    await createUserWithEmailAndPassword(data.email, data.password);
-    await updateProfile({ displayName: data.name });
-    // console.log("down", data.email, data.password, data.name);
-    // reset();
-  };
-  // console.log(user?.user?.displayName);
-  // console.log(user?.user?.email);
-  // console.log(getValues()?.category);
-  // console.log(name);
-  fetch(`http://localhost:5000/teacher/${user?.user?.email}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      name,
-      email,
-      category,
-    }),
-    headers: {
-      "Content-type": "application/json",
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-      // reset();
-    });
-
   return (
     <div className="max-w-screen-xl mx-auto">
       <div className="grid lg:grid-cols-2 ">
@@ -90,30 +67,6 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* name */}
-            <div className="form-control w-full max-w-xs">
-              <label className="label">
-                <span className="label-text">Name</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Type Your Name"
-                className="input input-bordered w-full max-w-xs"
-                {...register("name", {
-                  required: {
-                    value: true,
-                    message: "Name is required",
-                  },
-                })}
-              />
-              <label className="label">
-                {errors.name?.type === "required" && (
-                  <span className="label-text-alt text-error">
-                    {errors.name.message}
-                  </span>
-                )}
-              </label>
-            </div>
             {/* email */}
             <div className="form-control w-full max-w-xs">
               <label className="label">
@@ -148,17 +101,7 @@ const Register = () => {
                   </span>
                 )}
               </label>
-              {/* role */}
-              <select
-                class="select select-bordered w-full max-w-xs"
-                {...register("category")}
-              >
-                <option disabled selected>
-                  Role?
-                </option>
-                <option value="teacher">Teacher</option>
-                <option value="student">Student</option>
-              </select>
+
               {/* password */}
             </div>
             <div className="form-control w-full max-w-xs">
@@ -199,13 +142,14 @@ const Register = () => {
             <input
               className="w-full max-w-xs btn btn-primary hover:text-white hover:bg-secondary"
               type="submit"
-              value="Sign Up"
+              value="Sign In"
             />
             <p>
               <small>
-                Already Have an Account?{" "}
-                <Link className="text-primary font-bold" to="/login">
-                  Sign In
+                New to Techo kids?{" "}
+                <Link className="text-primary font-bold" to="/register">
+                  {" "}
+                  Create an account
                 </Link>
               </small>
             </p>
@@ -220,4 +164,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
