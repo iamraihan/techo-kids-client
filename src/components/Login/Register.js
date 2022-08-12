@@ -49,7 +49,7 @@ const Register = () => {
   // console.log(user?.user?.email);
   // console.log(getValues()?.category);
   // console.log(name);
-  fetch(`http://localhost:5000/teacher/${user?.user?.email}`, {
+  fetch(`https://techo-kids-server-production.up.railway.app/teacher/${email}`, {
     method: "PUT",
     body: JSON.stringify({
       name,
